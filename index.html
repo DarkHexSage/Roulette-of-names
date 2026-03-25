@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 Roulette Giveaway</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --gold:    #F5C400;
+  --gold2:   #FFE566;
+  --neon:    #00EEFF;
+  --bg:      #08080E;
+  --bg2:     #0F0F1A;
+  --bg3:     #161625;
+  --card:    #1C1C2E;
+  --border:  rgba(245,196,0,0.2);
+  --text:    #EEEEF8;
+  --muted:   #5A5A78;
+  --green:   #00FF88;
+  --red:     #FF3355;
+  --radius:  12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 16px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.ambient {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 700px 400px at 15% 30%, rgba(245,196,0,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 350px at 85% 65%, rgba(0,238,255,0.05) 0%, transparent 70%);
+}
+
+/* ── VIEWS ── */
+.view {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 2rem;
+}
+
+/* ── TYPOGRAPHY ── */
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(5rem, 14vw, 10rem);
+  letter-spacing: 0.08em; line-height: 1;
+  background: linear-gradient(140deg, var(--gold) 20%, var(--gold2) 55%, var(--neon) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 50px rgba(245,196,0,0.35));
+  margin-bottom: 0.4rem;
+}
+.tagline {
+  font-size: 1.1rem; color: var(--muted);
+  letter-spacing: 0.35em; text-transform: uppercase; margin-bottom: 2.5rem;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700;
+  font-size: 1.05rem; letter-spacing: 0.12em; text-transform: uppercase;
+  border: none; border-radius: var(--radius);
+  cursor: pointer; padding: 0.85rem 2.2rem; transition: all 0.18s;
+}
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), #D4A000);
+  color: #06060A;
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,196,0,0.45); }
+
+.btn-ghost {
+  background: transparent; color: var(--gold);
+  border: 1.5px solid var(--border);
+}
+.btn-ghost:hover { background: rgba(245,196,0,0.07); border-color: var(--gold); }
+
+.btn-neon {
+  background: linear-gradient(135deg, var(--neon), #009BB0);
+  color: #06060A;
+}
+.btn-neon:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,238,255,0.35); }
+
+.btn-danger { color: var(--red); border-color: rgba(255,51,85,0.3); }
+.btn-danger:hover { background: rgba(255,51,85,0.07); border-color: var(--red); }
+
+.btn-spin {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem; letter-spacing: 0.18em;
+  padding: 1rem 3rem; border-radius: var(--radius); border: none;
+  cursor: pointer; transition: all 0.2s; width: 100%;
+  background: linear-gradient(135deg, var(--gold), #FF8C00);
+  color: #06060A;
+}
+.btn-spin:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(245,196,0,0.55);
+}
+.btn-spin:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.4rem;
+}
+
+/* ── INPUTS ── */
+.input-group { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 1rem; }
+.input-group label {
+  font-size: 0.8rem; text-transform: uppercase;
+  letter-spacing: 0.18em; color: var(--muted);
+}
+input[type=text] {
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px; color: var(--text);
+  font-family: 'Rajdhani', sans-serif; font-size: 1.1rem;
+  padding: 0.7rem 1rem; outline: none;
+  transition: border-color 0.18s; width: 100%;
+}
+input[type=text]:focus { border-color: var(--gold); }
+input[type=text]::placeholder { color: var(--muted); }
+
+/* ── LANDING ── */
+#view-landing { text-align: center; }
+
+/* ── HOST VIEW ── */
+#view-host {
+  padding: 1.5rem; align-items: stretch; justify-content: flex-start;
+  max-width: 1200px; margin: 0 auto; width: 100%;
+}
+
+.host-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.2rem; flex-wrap: wrap; gap: 1rem;
+}
+.host-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.4rem; letter-spacing: 0.1em;
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.session-badge {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.35rem 0.85rem;
+  font-size: 0.82rem; color: var(--muted); font-family: monospace; margin-top: 0.2rem;
+}
+.host-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+.share-box {
+  background: var(--bg3); border: 1px dashed rgba(245,196,0,0.3);
+  border-radius: 10px; padding: 1rem; margin-bottom: 1.4rem;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.share-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); white-space: nowrap; }
+.share-url {
+  font-family: monospace; font-size: 0.88rem; color: var(--neon);
+  word-break: break-all; flex: 1; min-width: 0;
+}
+
+.host-body {
+  display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; align-items: start;
+}
+@media (max-width: 800px) { .host-body { grid-template-columns: 1fr; } }
+
+.wheel-section { display: flex; flex-direction: column; align-items: center; gap: 1.4rem; }
+
+.wheel-wrap { position: relative; width: 100%; max-width: 460px; }
+#wheel-canvas { width: 100%; height: auto; display: block; }
+
+/* Pointer on the RIGHT side */
+.wheel-pointer {
+  position: absolute; right: -14px; top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-top: 18px solid transparent;
+  border-bottom: 18px solid transparent;
+  border-right: 34px solid var(--gold);
+  filter: drop-shadow(0 0 10px rgba(245,196,0,0.8));
+}
+
+#spin-status { color: var(--muted); font-size: 0.95rem; text-align: center; min-height: 1.2rem; }
+
+/* ── SIDEBAR ── */
+.sidebar { display: flex; flex-direction: column; gap: 1.2rem; }
+.section-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem;
+  letter-spacing: 0.1em; color: var(--gold);
+  margin-bottom: 0.8rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.count-badge {
+  background: var(--gold); color: #06060A;
+  border-radius: 20px; padding: 0 0.55rem;
+  font-family: 'Rajdhani', sans-serif; font-size: 0.88rem; font-weight: 700;
+  min-width: 24px; text-align: center; line-height: 1.6;
+}
+
+.p-list { display: flex; flex-direction: column; gap: 0.4rem; max-height: 280px; overflow-y: auto; }
+.p-list::-webkit-scrollbar { width: 4px; }
+.p-list::-webkit-scrollbar-track { background: var(--bg2); }
+.p-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.p-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: var(--bg2); border-radius: 7px; padding: 0.45rem 0.8rem;
+  font-size: 0.95rem; animation: slideIn 0.28s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; font-weight: 700; flex-shrink: 0; color: #06060A;
+}
+
+.w-list { display: flex; flex-direction: column; gap: 0.4rem; max-height: 200px; overflow-y: auto; }
+.w-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.15);
+  border-radius: 7px; padding: 0.45rem 0.8rem; font-size: 0.9rem;
+}
+.w-name { color: var(--green); font-weight: 600; }
+.w-date { color: var(--muted); font-size: 0.78rem; font-family: monospace; }
+
+.empty { color: var(--muted); font-size: 0.92rem; text-align: center; padding: 1.2rem 0; }
+
+/* ── WINNER OVERLAY ── */
+#winner-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 1.8rem;
+  text-align: center;
+}
+.ov-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  letter-spacing: 0.2em; color: var(--gold);
+  animation: glow 0.8s ease-in-out infinite alternate;
+}
+@keyframes glow {
+  from { filter: drop-shadow(0 0 10px rgba(245,196,0,0.4)); }
+  to   { filter: drop-shadow(0 0 30px rgba(245,196,0,0.9)); }
+}
+.ov-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3.5rem, 11vw, 7rem);
+  letter-spacing: 0.05em; color: #fff;
+  line-height: 1;
+}
+.emoji-row { font-size: 2.5rem; animation: bounce 0.5s ease-in-out infinite alternate; }
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-12px); }
+}
+
+/* ── PARTICIPANT VIEW ── */
+#view-participant {
+  padding: 1.5rem; max-width: 520px; margin: 0 auto; width: 100%; justify-content: center;
+}
+.part-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 10vw, 4.5rem);
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, var(--gold), var(--neon));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  text-align: center; margin-bottom: 0.25rem;
+}
+.part-sub {
+  text-align: center; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.22em;
+  font-size: 0.82rem; margin-bottom: 2rem;
+}
+.status-bar {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.85rem 1.1rem; border-radius: 9px;
+  font-weight: 600; font-size: 1rem; margin-top: 0.9rem; width: 100%;
+}
+.status-ok      { background: rgba(0,255,136,0.07); border: 1px solid rgba(0,255,136,0.25); color: var(--green); }
+.status-waiting { background: rgba(245,196,0,0.07); border: 1px solid rgba(245,196,0,0.25); color: var(--gold);  }
+.status-winner  {
+  background: rgba(0,255,136,0.14); border: 1px solid var(--green);
+  color: var(--green); font-size: 1.1rem;
+  animation: glow2 0.9s ease-in-out infinite alternate;
+}
+@keyframes glow2 {
+  from { box-shadow: 0 0 10px rgba(0,255,136,0.2); }
+  to   { box-shadow: 0 0 28px rgba(0,255,136,0.6); }
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; animation: blink 1.3s ease-in-out infinite; }
+.dot-gold  { background: var(--gold); }
+.dot-green { background: var(--green); }
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.15; } }
+
+#reg-error { color: var(--red); font-size: 0.9rem; margin-top: 0.5rem; display: none; }
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<!-- ════════════════════════════════════════
+     LANDING VIEW  (no ?session param)
+════════════════════════════════════════ -->
+<div id="view-landing" class="view" style="display:none">
+  <div class="logo">ROULETTE</div>
+  <div class="tagline">Giveaway System</div>
+
+  <div class="card" style="max-width:400px;width:100%">
+    <div class="input-group">
+      <label>Your name (host)</label>
+      <input type="text" id="host-name-input" placeholder="e.g. Mario" maxlength="40" />
+    </div>
+    <button class="btn btn-gold" style="width:100%" onclick="createSession()">
+      Create New Giveaway ✨
+    </button>
+  </div>
+
+  <p style="margin-top:1.5rem;color:var(--muted);font-size:0.9rem;text-align:center;max-width:340px;line-height:1.6">
+    Create a session → share the link → everyone registers → you spin and pick a winner.
+  </p>
+</div>
+
+<!-- ════════════════════════════════════════
+     HOST VIEW  (?session=X&mode=host)
+════════════════════════════════════════ -->
+<div id="view-host" class="view" style="display:none">
+  <div class="host-header">
+    <div>
+      <div class="host-title">🎰 Giveaway Host</div>
+      <div class="session-badge" id="host-session-badge"></div>
+    </div>
+    <div class="host-actions">
+      <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn btn-ghost btn-danger" onclick="resetSession()">🗑 Reset Draw</button>
+    </div>
+  </div>
+
+  <!-- Share link bar -->
+  <div class="share-box" style="width:100%">
+    <div class="share-label">📎 Share with participants</div>
+    <div class="share-url" id="share-url-display"></div>
+    <button class="btn btn-ghost" style="font-size:0.82rem;padding:0.4rem 1rem;flex-shrink:0" onclick="copyLink()">Copy</button>
+  </div>
+
+  <div class="host-body" style="width:100%">
+    <!-- Wheel + Spin -->
+    <div class="wheel-section">
+      <div class="wheel-wrap">
+        <canvas id="wheel-canvas" width="480" height="480"></canvas>
+        <div class="wheel-pointer"></div>
+      </div>
+      <button class="btn-spin" id="spin-btn" onclick="doSpin()" disabled>SPIN!</button>
+      <div id="spin-status"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="card">
+        <div class="section-title">
+          👥 Participants
+          <span class="count-badge" id="host-count">0</span>
+        </div>
+        <div class="p-list" id="host-plist">
+          <div class="empty">Waiting for players to join…</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">🏆 Winner History</div>
+        <div class="w-list" id="host-wlist">
+          <div class="empty">No winners yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PARTICIPANT VIEW  (?session=X)
+════════════════════════════════════════ -->
+<div id="view-participant" class="view" style="display:none">
+  <div class="part-title">🎲 GIVEAWAY</div>
+  <div class="part-sub" id="part-session-label"></div>
+
+  <div class="card" style="width:100%" id="reg-card">
+    <div class="input-group">
+      <label>Your name</label>
+      <input type="text" id="part-name-input" placeholder="Enter your name to join" maxlength="40" />
+    </div>
+    <button class="btn btn-neon" style="width:100%" onclick="doRegister()">
+      Join the Draw 🎲
+    </button>
+    <div id="reg-error"></div>
+  </div>
+
+  <div id="part-status" style="width:100%"></div>
+
+  <div class="card" style="width:100%;margin-top:1.2rem">
+    <div class="section-title">
+      👥 In the draw
+      <span class="count-badge" id="part-count">0</span>
+    </div>
+    <div class="p-list" id="part-plist">
+      <div class="empty">Be the first to join!</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     WINNER OVERLAY
+════════════════════════════════════════ -->
+<div id="winner-overlay">
+  <div class="emoji-row">🎉</div>
+  <div>
+    <div class="ov-label">🏆 WINNER 🏆</div>
+    <div class="ov-name" id="ov-winner-name">—</div>
+  </div>
+  <div class="emoji-row">🎊</div>
+  <button class="btn btn-gold" onclick="closeOverlay()">Continue</button>
+</div>
+
+<!-- ════════ Firebase SDK ════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════
+   🔥  FIREBASE CONFIG — REPLACE WITH YOUR OWN
+   Firebase Console → Your Project → Project Settings → Web App
+══════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* ══ CONSTANTS ══ */
+const COLORS = [
+  '#F5C400','#FF6B35','#E84393','#9B59B6',
+  '#3498DB','#1ABC9C','#E67E22','#2ECC71',
+  '#E74C3C','#F39C12','#8E44AD','#16A085',
+  '#D35400','#27AE60','#2980B9','#C0392B',
+];
+
+/* ══ STATE ══ */
+let participants  = [];
+let winnerHistory = [];
+let rotation      = 0;
+let spinning      = false;
+
+/* ══ ROUTING ══ */
+const params    = new URLSearchParams(location.search);
+const SESSION   = params.get('session');
+const IS_HOST   = params.get('mode') === 'host';
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (!SESSION)      { show('view-landing'); }
+  else if (IS_HOST)  { show('view-host');    initHost(); }
+  else               { show('view-participant'); initParticipant(); }
+});
+
+function show(id) {
+  ['view-landing','view-host','view-participant'].forEach(v => {
+    document.getElementById(v).style.display = (v === id) ? 'flex' : 'none';
+  });
+}
+
+/* ══════════════════════════════════════════════
+   LANDING — create session
+══════════════════════════════════════════════ */
+async function createSession() {
+  const hostName = (document.getElementById('host-name-input').value.trim()) || 'Host';
+  const id = genId();
+  await db.collection('sessions').doc(id).set({
+    hostName,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    status: 'open',
+    winners: []
+  });
+  location.href = `${location.origin}${location.pathname}?session=${id}&mode=host`;
+}
+
+/* ══════════════════════════════════════════════
+   HOST — init & listeners
+══════════════════════════════════════════════ */
+function initHost() {
+  document.getElementById('host-session-badge').textContent = `Session ID: ${SESSION}`;
+
+  const shareUrl = `${location.origin}${location.pathname}?session=${SESSION}`;
+  document.getElementById('share-url-display').textContent = shareUrl;
+
+  /* Live participants */
+  db.collection('sessions').doc(SESSION)
+    .collection('participants')
+    .orderBy('registeredAt')
+    .onSnapshot(snap => {
+      participants = snap.docs.map(d => d.data());
+      renderHostList();
+      syncSpinBtn();
+      drawWheel();
+    });
+
+  /* Session doc (winner history) */
+  db.collection('sessions').doc(SESSION).onSnapshot(snap => {
+    const data = snap.data() || {};
+    winnerHistory = data.winners || [];
+    renderWinnerHistory();
+  });
+
+  drawWheel();
+}
+
+function renderHostList() {
+  const el    = document.getElementById('host-plist');
+  const count = document.getElementById('host-count');
+  count.textContent = participants.length;
+  el.innerHTML = participants.length
+    ? participants.map((p, i) => playerItem(p, i)).join('')
+    : '<div class="empty">Waiting for players to join…</div>';
+}
+
+function renderWinnerHistory() {
+  const el = document.getElementById('host-wlist');
+  el.innerHTML = winnerHistory.length
+    ? [...winnerHistory].reverse().map(w => `
+        <div class="w-item">
+          <span class="w-name">🏆 ${esc(w.name)}</span>
+          <span class="w-date">${fmtDate(w.timestamp)}</span>
+        </div>`).join('')
+    : '<div class="empty">No winners yet</div>';
+}
+
+function syncSpinBtn() {
+  const btn    = document.getElementById('spin-btn');
+  const status = document.getElementById('spin-status');
+  if (spinning) return;
+  if (participants.length < 2) {
+    btn.disabled = true;
+    status.textContent = participants.length === 0
+      ? 'Waiting for participants to join…'
+      : 'Need at least 2 participants to spin.';
+  } else {
+    btn.disabled = false;
+    status.textContent = `${participants.length} participant${participants.length > 1 ? 's' : ''} ready — let's go!`;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   WHEEL — canvas drawing
+══════════════════════════════════════════════ */
+function drawWheel() {
+  const canvas = document.getElementById('wheel-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const r  = Math.min(cx, cy) - 6;
+
+  ctx.clearRect(0, 0, W, H);
+
+  if (!participants.length) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.fillStyle = '#1C1C2E'; ctx.fill();
+    ctx.strokeStyle = 'rgba(245,196,0,0.2)'; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = '#5A5A78'; ctx.font = '500 18px Rajdhani, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Waiting for players…', cx, cy);
+    return;
+  }
+
+  const N = participants.length;
+  const sliceAngle = (2 * Math.PI) / N;
+  const fontSize   = Math.max(10, Math.min(16, Math.floor(220 / N)));
+
+  participants.forEach((p, i) => {
+    const a0 = rotation + i * sliceAngle;
+    const a1 = a0 + sliceAngle;
+
+    /* slice */
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, a0, a1);
+    ctx.closePath();
+    ctx.fillStyle   = COLORS[i % COLORS.length];
+    ctx.fill();
+    ctx.strokeStyle = '#08080E';
+    ctx.lineWidth   = 2;
+    ctx.stroke();
+
+    /* label */
+    const mid = a0 + sliceAngle / 2;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(mid);
+    ctx.textAlign     = 'right';
+    ctx.textBaseline  = 'middle';
+    ctx.fillStyle     = 'rgba(0,0,0,0.85)';
+    ctx.font          = `700 ${fontSize}px Rajdhani, sans-serif`;
+    const label = p.name.length > 14 ? p.name.slice(0, 13) + '…' : p.name;
+    ctx.fillText(label, r - 14, 0);
+    ctx.restore();
+  });
+
+  /* centre hub */
+  ctx.beginPath();
+  ctx.arc(cx, cy, 26, 0, 2 * Math.PI);
+  ctx.fillStyle = '#08080E'; ctx.fill();
+  ctx.strokeStyle = '#F5C400'; ctx.lineWidth = 3; ctx.stroke();
+  ctx.font = '18px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('🎰', cx, cy);
+}
+
+/* ══════════════════════════════════════════════
+   SPIN ANIMATION
+══════════════════════════════════════════════ */
+function doSpin() {
+  if (spinning || participants.length < 2) return;
+  spinning = true;
+
+  document.getElementById('spin-btn').disabled = true;
+  document.getElementById('spin-status').textContent = '🎲 Spinning…';
+
+  const N          = participants.length;
+  const sliceAngle = (2 * Math.PI) / N;
+  const winIdx     = Math.floor(Math.random() * N);
+
+  /* We want the center of winIdx's slice to land at angle 0 (where the right-side pointer is).
+     Slice i center = rotation + i*sliceAngle + sliceAngle/2
+     We want that ≡ 0 (mod 2π), so:
+     targetRotation = -(winIdx*sliceAngle + sliceAngle/2) */
+  const extra = 7 + Math.random() * 6;            // 7–13 full spins
+  let   target = -(winIdx * sliceAngle + sliceAngle / 2);
+  while (target < rotation) target += 2 * Math.PI;
+  target += extra * 2 * Math.PI;
+
+  const dur   = 5500 + Math.random() * 1800;       // 5.5–7.3 s
+  const start = rotation;
+  const t0    = performance.now();
+
+  const ease = t => 1 - Math.pow(1 - t, 4);       // quartic ease-out
+
+  (function frame(now) {
+    const t   = Math.min((now - t0) / dur, 1);
+    rotation  = start + (target - start) * ease(t);
+    drawWheel();
+    if (t < 1) { requestAnimationFrame(frame); }
+    else        { rotation = target; drawWheel(); onSpinEnd(participants[winIdx]); }
+  })(performance.now());
+}
+
+async function onSpinEnd(winner) {
+  spinning = false;
+
+  /* Show overlay */
+  document.getElementById('ov-winner-name').textContent = winner.name;
+  document.getElementById('winner-overlay').style.display = 'flex';
+  document.getElementById('spin-status').textContent = `🏆 Winner: ${winner.name}`;
+
+  /* Persist to Firestore */
+  await db.collection('sessions').doc(SESSION).update({
+    winners: firebase.firestore.FieldValue.arrayUnion({ name: winner.name, timestamp: Date.now() })
+  });
+
+  syncSpinBtn();
+}
+
+function closeOverlay() {
+  document.getElementById('winner-overlay').style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════
+   HOST — RESET / EXPORT
+══════════════════════════════════════════════ */
+async function resetSession() {
+  if (!confirm('Clear all participants for a fresh draw?\n(Winner history is preserved.)')) return;
+  const snap  = await db.collection('sessions').doc(SESSION).collection('participants').get();
+  const batch = db.batch();
+  snap.docs.forEach(d => batch.delete(d.ref));
+  await batch.commit();
+  rotation = 0;
+  document.getElementById('spin-status').textContent = '';
+}
+
+function exportCSV() {
+  if (!winnerHistory.length) { alert('No winner history to export yet.'); return; }
+  const rows = [['#','Winner','Timestamp']];
+  [...winnerHistory].forEach((w, i) =>
+    rows.push([i + 1, w.name, new Date(w.timestamp).toISOString()])
+  );
+  const csv  = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement('a'), { href: url, download: `winners-${SESSION}.csv` });
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function copyLink() {
+  const url = `${location.origin}${location.pathname}?session=${SESSION}`;
+  navigator.clipboard.writeText(url).then(() => alert('✅ Link copied!\nShare it with your audience 🎉'));
+}
+
+/* ══════════════════════════════════════════════
+   PARTICIPANT — init & register
+══════════════════════════════════════════════ */
+function initParticipant() {
+  document.getElementById('part-session-label').textContent = `Session: ${SESSION}`;
+
+  /* Auto-restore if already registered in this session */
+  const saved = localStorage.getItem(`roulette-${SESSION}`);
+  if (saved) {
+    document.getElementById('reg-card').style.display = 'none';
+    setPartStatus('ok', `✅ You're in the draw as <strong>${esc(saved)}</strong>! Waiting for the spin…`);
+  }
+
+  /* Live participants */
+  db.collection('sessions').doc(SESSION)
+    .collection('participants')
+    .orderBy('registeredAt')
+    .onSnapshot(snap => {
+      participants = snap.docs.map(d => d.data());
+      renderPartList();
+    });
+
+  /* Listen for new winners */
+  db.collection('sessions').doc(SESSION).onSnapshot(snap => {
+    const data    = snap.data() || {};
+    const winners = data.winners || [];
+    if (!winners.length) return;
+    const last  = winners[winners.length - 1];
+    const myName = localStorage.getItem(`roulette-${SESSION}`);
+    if (!myName) return;
+    if (last.name.toLowerCase() === myName.toLowerCase()) {
+      setPartStatus('winner', `🏆 YOU WON! Congratulations ${esc(myName)}! 🎉🎊`);
+    } else {
+      setPartStatus('ok', `✅ You're in the draw — last winner was <strong>${esc(last.name)}</strong>.`);
+    }
+  });
+}
+
+async function doRegister() {
+  const input  = document.getElementById('part-name-input');
+  const errEl  = document.getElementById('reg-error');
+  const name   = input.value.trim();
+
+  errEl.style.display = 'none';
+  if (!name || name.length < 2) { showErr('Please enter a name (min 2 characters).'); return; }
+
+  const docId  = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const ref    = db.collection('sessions').doc(SESSION).collection('participants').doc(docId);
+  const exists = await ref.get();
+
+  if (exists.exists) { showErr('That name is already taken — try a different one!'); return; }
+
+  await ref.set({ name, registeredAt: firebase.firestore.FieldValue.serverTimestamp() });
+
+  localStorage.setItem(`roulette-${SESSION}`, name);
+  document.getElementById('reg-card').style.display = 'none';
+  setPartStatus('ok', `✅ You're in the draw, <strong>${esc(name)}</strong>! Waiting for the host to spin…`);
+}
+
+function renderPartList() {
+  const el    = document.getElementById('part-plist');
+  const count = document.getElementById('part-count');
+  count.textContent = participants.length;
+  el.innerHTML = participants.length
+    ? participants.map((p, i) => playerItem(p, i)).join('')
+    : '<div class="empty">Be the first to join!</div>';
+}
+
+function setPartStatus(type, html) {
+  const el = document.getElementById('part-status');
+  const cls = { ok: 'status-ok', waiting: 'status-waiting', winner: 'status-winner' }[type] || 'status-waiting';
+  const dot = type === 'winner' ? '' : `<span class="dot dot-${type === 'ok' ? 'green' : 'gold'}"></span>`;
+  el.innerHTML = `<div class="status-bar ${cls}">${dot} ${html}</div>`;
+}
+
+function showErr(msg) {
+  const el = document.getElementById('reg-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function playerItem(p, i) {
+  return `<div class="p-item">
+    <div class="avatar" style="background:${COLORS[i % COLORS.length]}">${esc(p.name[0].toUpperCase())}</div>
+    <span>${esc(p.name)}</span>
+  </div>`;
+}
+
+function genId(len = 6) {
+  return Math.random().toString(36).substring(2, 2 + len).toUpperCase();
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function fmtDate(ts) {
+  if (!ts) return '';
+  return new Date(ts).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+</script>
+</body>
+</html>
